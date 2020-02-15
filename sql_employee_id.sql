@@ -91,16 +91,47 @@ where extract(year from hire_date) = 1986
 
 --
 
---join dept_employee_data, data_dept_manager and detailed_employee_data
---how to join detailed employee data with just first, last and emp_no? subquery? update joined table 160?
+--create a table with department manager, department number, department name, the manager's employee number, last name, first name, 
+--and start and end employment dates.
 
-select * from data_dept_manager
+select detailed_employee_data.emp_no, detailed_employee_data.first_name, detailed_employee_data.last_name, data_dept_manager.dept_no , data_dept_manager.start_date, data_dept_manager.end_date ,employee_data.dept_name
+from data_dept_manager
 join employee_data using (dept_no)
 join detailed_employee_data using(emp_no);
 
---join department info with employee info
-with all_employees as (select * from dept_employee_data
-join detailed_employee_data using(emp_no)
-join employee_data using(dept_no)) 
+--create a table with employee number, full name and department
+ 
+create view  all_employees as
+select dept_employee_data.emp_no,  detailed_employee_data.first_name , detailed_employee_data.last_name, employee_data.dept_name
+from dept_employee_data
+join detailed_employee_data on dept_employee_data.emp_no = detailed_employee_data.emp_no
+join employee_data on employee_data.dept_no= dept_employee_data.dept_no;
 
+
+--List all employees whose first name is "Hercules" and last names begin with "B.
 select * from all_employees
+where first_name = 'Hercules' and last_name like 'B%';
+
+--List all employees in the Sales department, including their employee number, last name, first name, and department name.
+select * from all_employees
+where dept_name = 'Sales';
+
+--List all employees in the Sales and Development departments, including their employee number, last name, first name, and department name.
+select * from all_employees
+where dept_name = 'Sales' or dept_name = 'Development';
+
+
+--In descending order, list the frequency count of employee last names, i.e., how many employees share each last name.
+create view employee_last_name  as
+select last_name 
+from all_employees
+group by(last_name) ;
+count(last_names) as "last_name_count"
+where last_names like '%'
+order by 'last_name_count' desc;
+
+
+
+
+
+
